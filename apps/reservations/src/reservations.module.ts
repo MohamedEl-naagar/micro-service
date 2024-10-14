@@ -16,12 +16,12 @@ import * as Joi from 'joi';
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
     LoggerModule,
-    // ConfigModule.forRoot({
-    // isGlobal: true,
-    // validationSchema: Joi.object({
-    //   MONGODB_URI: Joi.string().required(),
-    //}),
-    // }),
+    ConfigModule.forRoot({
+    isGlobal: true,
+    validationSchema: Joi.object({
+      MONGODB_URI: Joi.string().required(),
+    }),
+    }),
   ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository],

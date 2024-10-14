@@ -1,35 +1,23 @@
-FROM node:alpine As development
+# Stage 1: Development Environment
+FROM node:18-alpine AS development
 
-WORKDIR /usr/src/app
-
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-COPY tsconfig.json tsconfig.json
-COPY nest-cli.json nest-cli.json
-
+# Install pnpm globally
 RUN npm install -g pnpm
 
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and pnpm-lock.yaml
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies (including devDependencies)
 RUN pnpm install
 
-COPY apps/reservations apps/reservations
-COPY libs libs
+# Copy the rest of the application code
+COPY . .
 
-RUN pnpm run build reservations
+# Expose the application's port
+EXPOSE 3000
 
-FROM node:alpine as production
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /usr/src/app
-
-COPY package.json ./
-COPY pnpm-lock.yaml ./
-
-RUN npm install -g pnpm
-
-RUN pnpm install --prod
-
-COPY --from=development /usr/src/app/dist ./dist
-
-CMD ["node", "dist/apps/reservations/main"]
+# Define the default command to run the application in development mode
+CMD ["pnpm", "run", "start:dev", "reservations"]
