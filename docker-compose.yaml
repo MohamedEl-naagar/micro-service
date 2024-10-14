@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  reservations:
+    build:
+      context: .
+      dockerfile: ./apps/reservations/Dockerfile
+      target: development
+    command: pnpm run start:dev reservations
+    env_file:
+      - ./apps/reservations/.env
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - mongo  # Wait for MongoDB to start
+    networks:
+      - sticky-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - '27017:27017'
+    networks:
+      - sticky-network
+
+networks:
+  sticky-network:
+    driver: bridge
