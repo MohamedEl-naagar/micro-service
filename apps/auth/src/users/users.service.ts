@@ -9,6 +9,10 @@ export class UsersService {
     return this.userRepository.find({});
   }
 
+  async GetUser(_id) {
+    return this.userRepository.findOne(_id);
+  }
+
   async Create(document) {
     let data = await this.userRepository.create({
       ...document,

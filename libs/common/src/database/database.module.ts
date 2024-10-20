@@ -1,19 +1,14 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
-import { models } from 'mongoose';
+
 @Module({
   imports: [
-    MongooseModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-      }),
-      inject: [ConfigService],
-    }),
+    MongooseModule.forRoot('mongodb://localhost:27017/sleepr'),
   ],
 })
 export class DatabaseModule {
-  static forFeature(models: ModelDefinition[]): DynamicModule {
+  static forFeature(models: ModelDefinition[]) {
     return MongooseModule.forFeature(models);
   }
 }

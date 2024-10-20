@@ -7,21 +7,41 @@ import {
   ReservationDocument,
   ReservationSchema,
 } from './models/reservation.schema';
-import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MongooseModule } from '@nestjs/mongoose';
+import { PaymentsModule } from 'apps/payments/src/payments.module';
+
 @Module({
   imports: [
-    DatabaseModule,
-    DatabaseModule.forFeature([
+    ClientsModule,
+    MongooseModule.forRoot('mongodb://localhost:27017/sleepr'),
+    MongooseModule.forFeature([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
     LoggerModule,
-    ConfigModule.forRoot({
-    isGlobal: true,
-    validationSchema: Joi.object({
-      MONGODB_URI: Joi.string().required(),
-    }),
-    }),
+    ClientsModule.registerAsync([
+      {
+        name: 'auth',
+        useFactory: () => ({
+          transport: Transport.TCP,
+          options: {
+            host: 'auth',
+            port: 3002,
+          },
+        }),
+      },
+      {
+        name: 'payments',
+        useFactory: () => ({
+          transport: Transport.TCP,
+          options: {
+            host: 'payments',
+            port: 3003,
+          },
+        }),
+      },
+      PaymentsModule,
+    ]),
   ],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository],

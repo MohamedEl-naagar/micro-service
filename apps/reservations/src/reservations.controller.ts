@@ -6,18 +6,23 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
-// import { UpdateReservationDto } from './reservations/dto/update-reservation.dto';
-
+import { CurrentUser } from 'apps/auth/src/current-user.decorators';
+import { JWTAuthGuard } from 'apps/auth/src/guards/jwt-auth.guards';
 @Controller('reservations')
 export class ReservationsController {
   constructor(private readonly reservationsService: ReservationsService) {}
-
+ 
+  @UseGuards(JWTAuthGuard)
   @Post()
-  create(@Body() createReservationDto: CreateReservationDto) {
-    return this.reservationsService.create(createReservationDto);
+  async create(
+    @Body() createReservationDto: CreateReservationDto,
+    @CurrentUser() user: any,
+  ) {
+    return this.reservationsService.create(createReservationDto, user);
   }
 
   @Get()
